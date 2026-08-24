@@ -3,21 +3,21 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, SQLModel
 
-from enums.user import UserRole
+from enums.station import Region
 
 
-class User(SQLModel, table=True):
-    __tablename__ = "users"
+class Station(SQLModel, table=True):
+    __tablename__ = "stations"
 
     id: int | None = Field(default=None, primary_key=True)
-    email: str = Field(max_length=255, unique=True, nullable=False)
-    hashed_password: str = Field(max_length=255, nullable=False)
-    name: str = Field(max_length=50, nullable=False)
-    role: UserRole = Field(default=UserRole.USER, nullable=False)
+    name: str = Field(max_length=50, unique=True, nullable=False)
+    code: str = Field(max_length=5, unique=True, nullable=False)
+    city: str = Field(max_length=50, nullable=False)
+    region: Region = Field(nullable=False)
     created_at: datetime = Field(
         sa_column=Column(
             DateTime(timezone=True), nullable=False, server_default=func.now()
-        ),
+        )
     )
     updated_at: datetime = Field(
         sa_column=Column(
@@ -25,5 +25,5 @@ class User(SQLModel, table=True):
             nullable=False,
             server_default=func.now(),
             onupdate=func.now(),
-        ),
+        )
     )
