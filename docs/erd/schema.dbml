@@ -1,0 +1,138 @@
+Project train_ticket_reservation_system {
+  database_type: "PostgreSQL"
+  Note: "대규모 트래픽 환경의 기차 예매 시스템"
+}
+
+
+// =========================
+// Users
+// =========================
+
+Table users {
+  id bigint [pk, increment]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [not null]
+  name varchar(50) [not null]
+  role varchar(20) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: "사용자 계정 및 권한 정보"
+}
+
+
+// =========================
+// Stations
+// =========================
+
+Table stations {
+  id bigint [pk, increment]
+  name varchar(50) [not null, unique]
+  code varchar(10) [not null, unique]
+  city varchar(50) [not null]
+  region varchar(30) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: "기차역 정보"
+}
+
+
+// =========================
+// Trains
+// =========================
+
+Table trains {
+  id bigint [pk, increment]
+  train_number varchar(20) [not null, unique]
+  train_type varchar(20) [not null]
+  capacity integer [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: "물리적인 열차 정보"
+}
+
+
+// =========================
+// Seats
+// =========================
+
+Table seats {
+  id bigint [pk, increment]
+  train_id bigint [not null]
+  seat_number varchar(10) [not null]
+  seat_class varchar(20) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  indexes {
+    (train_id, seat_number) [unique]
+  }
+
+  Note: "열차에 실제로 존재하는 좌석 정보"
+}
+
+
+// =========================
+// Train Schedules
+// =========================
+
+Table train_schedules {
+  id bigint [pk, increment]
+  train_id bigint [not null]
+  departure_station_id bigint [not null]
+  arrival_station_id bigint [not null]
+  departure_time timestamptz [not null]
+  arrival_time timestamptz [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+
+  Note: "특정 날짜와 시간에 이루어지는 하나의 열차 운행"
+}
+
+
+// =========================
+// Reservations
+// =========================
+
+Table reservations {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  schedule_id bigint [not null]
+  seat_id bigint [not null]
+  status varchar(20) [not null]
+  created_at timestamptz [not null]
+
+  Note: "특정 운행의 특정 좌석에 대한 예약"
+
+  // PostgreSQL Partial Unique Index
+  // UNIQUE(schedule_id, seat_id)
+  // WHERE status != 'CANCELLED'
+}
+
+
+// =========================
+// Relationships
+// =========================
+
+// User 1 : N Reservation
+Ref: reservations.user_id > users.id
+
+// Train 1 : N Seat
+Ref: seats.train_id > trains.id
+
+// Train 1 : N TrainSchedule
+Ref: train_schedules.train_id > trains.id
+
+// Station 1 : N TrainSchedule (Departure)
+Ref: train_schedules.departure_station_id > stations.id
+
+// Station 1 : N TrainSchedule (Arrival)
+Ref: train_schedules.arrival_station_id > stations.id
+
+// TrainSchedule 1 : N Reservation
+Ref: reservations.schedule_id > train_schedules.id
+
+// Seat 1 : N Reservation
+Ref: reservations.seat_id > seats.id
