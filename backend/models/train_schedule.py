@@ -1,7 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from models.train import Train
+    from models.station import Station
+    from models.reservation import Reservation
 
 
 class TrainSchedule(SQLModel, table=True):
@@ -30,3 +36,14 @@ class TrainSchedule(SQLModel, table=True):
             onupdate=func.now(),
         )
     )
+
+    train: "Train" = Relationship(back_populates="schedules")
+    departure_station: "Station" = Relationship(
+        back_populates="departure_schedules",
+        sa_relationship_kwargs={"foreign_keys": "[TrainSchedule.departure_station_id]"},
+    )
+    arrival_station: "Station" = Relationship(
+        back_populates="arrival_schedules",
+        sa_relationship_kwargs={"foreign_keys": "[TrainSchedule.arrival_station_id]"},
+    )
+    reservations: list["Reservation"] = Relationship(back_populates="schedule")

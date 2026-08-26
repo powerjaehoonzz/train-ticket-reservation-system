@@ -1,9 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from enums.seat import SeatClass
+
+if TYPE_CHECKING:
+    from models.train import Train
+    from models.reservation import Reservation
 
 
 class Seat(SQLModel, table=True):
@@ -26,3 +31,6 @@ class Seat(SQLModel, table=True):
             onupdate=func.now(),
         )
     )
+
+    train: "Train" = Relationship(back_populates="seats")
+    reservations: list["Reservation"] = Relationship(back_populates="seat")

@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from enums.user import UserRole
+
+if TYPE_CHECKING:
+    from models.reservation import Reservation
 
 
 class User(SQLModel, table=True):
@@ -27,3 +31,5 @@ class User(SQLModel, table=True):
             onupdate=func.now(),
         ),
     )
+
+    reservations: list["Reservation"] = Relationship(back_populates="user")

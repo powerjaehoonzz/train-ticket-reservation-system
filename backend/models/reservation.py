@@ -1,9 +1,15 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from enums.reservation import ReservationStatus
+
+if TYPE_CHECKING:
+    from models.user import User
+    from models.train_schedule import TrainSchedule
+    from models.seat import Seat
 
 
 class Reservation(SQLModel, table=True):
@@ -19,3 +25,7 @@ class Reservation(SQLModel, table=True):
             DateTime(timezone=True), nullable=False, server_default=func.now()
         )
     )
+
+    user: "User" = Relationship(back_populates="reservations")
+    schedule: "TrainSchedule" = Relationship(back_populates="reservations")
+    seat: "Seat" = Relationship(back_populates="reservations")

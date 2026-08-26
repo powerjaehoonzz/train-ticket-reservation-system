@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from enums.station import Region
+
+if TYPE_CHECKING:
+    from models.train_schedule import TrainSchedule
 
 
 class Station(SQLModel, table=True):
@@ -26,4 +30,13 @@ class Station(SQLModel, table=True):
             server_default=func.now(),
             onupdate=func.now(),
         )
+    )
+
+    departure_schedules: list["TrainSchedule"] = Relationship(
+        back_populates="departure_station",
+        sa_relationship_kwargs={"foreign_keys": "[TrainSchedule.departure_station_id]"},
+    )
+    arrival_schedules: list["TrainSchedule"] = Relationship(
+        back_populates="arrival_station",
+        sa_relationship_kwargs={"foreign_keys": "[TrainSchedule.arrival_station_id]"},
     )
