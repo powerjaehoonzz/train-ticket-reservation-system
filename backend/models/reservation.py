@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime, Index, func, text
 from sqlmodel import Field, Relationship, SQLModel
 
 from enums.reservation import ReservationStatus
@@ -14,6 +14,14 @@ if TYPE_CHECKING:
 
 class Reservation(SQLModel, table=True):
     __tablename__ = "reservations"
+
+    __table_args__ = Index(
+        "uq_active_schedule_seat",
+        "schedule_id",
+        "seat_id",
+        unique=True,
+        postgresql_where=text("status != 'CANCELLED'"),
+    )
 
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", nullable=False)

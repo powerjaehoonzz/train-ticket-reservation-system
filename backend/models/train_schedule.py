@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import CheckConstraint, Column, DateTime, func
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -12,6 +12,17 @@ if TYPE_CHECKING:
 
 class TrainSchedule(SQLModel, table=True):
     __tablename__ = "train_schedules"
+
+    __table_args__ = (
+        CheckConstraint(
+            "departure_time < arrival_time",
+            name="ck_schedule_time_order",
+        ),
+        CheckConstraint(
+            "departure_station_id <> arrival_station_id",
+            name="ck_schedule_different_stations",
+        ),
+    )
 
     id: int | None = Field(default=None, primary_key=True)
     train_id: int = Field(foreign_key="trains.id", nullable=False)

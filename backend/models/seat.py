@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime, UniqueConstraint, func
 from sqlmodel import Field, Relationship, SQLModel
 
 from enums.seat import SeatClass
@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 class Seat(SQLModel, table=True):
     __tablename__ = "seats"
+
+    __table_args__ = UniqueConstraint("train_id", "seat_number", name="uq_train_seat")
 
     id: int | None = Field(default=None, primary_key=True)
     train_id: int = Field(foreign_key="trains.id", nullable=False)
