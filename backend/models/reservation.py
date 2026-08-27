@@ -15,12 +15,14 @@ if TYPE_CHECKING:
 class Reservation(SQLModel, table=True):
     __tablename__ = "reservations"
 
-    __table_args__ = Index(
-        "uq_active_schedule_seat",
-        "schedule_id",
-        "seat_id",
-        unique=True,
-        postgresql_where=text("status != 'CANCELLED'"),
+    __table_args__ = (
+        Index(
+            "uq_active_schedule_seat",
+            "schedule_id",
+            "seat_id",
+            unique=True,
+            postgresql_where=text("status != 'CANCELLED'"),
+        ),
     )
 
     id: int | None = Field(default=None, primary_key=True)

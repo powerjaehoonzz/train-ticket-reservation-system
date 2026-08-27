@@ -14,8 +14,12 @@ if TYPE_CHECKING:
 class Train(SQLModel, table=True):
     __tablename__ = "trains"
 
-    __table_args__ = UniqueConstraint(
-        "train_type", "train_number", name="uq_train_type_number"
+    __table_args__ = (
+        UniqueConstraint(
+            "train_type",
+            "train_number",
+            name="uq_train_type_number",
+        ),
     )
 
     id: int | None = Field(default=None, primary_key=True)

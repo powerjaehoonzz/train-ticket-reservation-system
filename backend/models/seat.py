@@ -14,7 +14,13 @@ if TYPE_CHECKING:
 class Seat(SQLModel, table=True):
     __tablename__ = "seats"
 
-    __table_args__ = UniqueConstraint("train_id", "seat_number", name="uq_train_seat")
+    __table_args__ = (
+        UniqueConstraint(
+            "train_id",
+            "seat_number",
+            name="uq_train_seat",
+        ),
+    )
 
     id: int | None = Field(default=None, primary_key=True)
     train_id: int = Field(foreign_key="trains.id", nullable=False)
