@@ -46,3 +46,17 @@ class StationService:
             await self._session.rollback()
             raise
         return station
+
+    async def get_all(self) -> list[Station]:
+        return await self._station_repository.get_all()
+
+    async def get_by_id(self, station_id: int) -> Station:
+        station = await self._station_repository.get_by_id(station_id)
+
+        if station is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="존재하지 않는 역입니다.",
+            )
+
+        return station

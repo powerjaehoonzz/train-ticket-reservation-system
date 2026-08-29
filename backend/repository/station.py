@@ -27,3 +27,12 @@ class StationRepository:
         result = await self._session.execute(stmt)
 
         return result.scalar_one_or_none()
+
+    async def get_all(self) -> list[Station]:
+        stmt = select(Station).order_by(Station.id)
+        result = await self._session.execute(stmt)
+
+        return result.scalars().all()
+
+    async def get_by_id(self, station_id: int) -> Station | None:
+        return await self._session.get(Station, station_id)

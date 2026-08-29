@@ -24,3 +24,17 @@ async def create_station(
     station_service: StationService = Depends(get_station_service),
 ) -> StationRead:
     return await station_service.create(station_in)
+
+
+@router.get("", response_model=list[StationRead])
+async def get_all_stations(
+    station_service: StationService = Depends(get_station_service),
+) -> list[StationRead]:
+    return await station_service.get_all()
+
+
+@router.get("/{station_id}", response_model=StationRead)
+async def get_station_by_id(
+    station_id: int, station_service: StationService = Depends(get_station_service)
+) -> StationRead:
+    return await station_service.get_by_id(station_id)
