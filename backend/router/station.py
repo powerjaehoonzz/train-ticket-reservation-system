@@ -1,10 +1,6 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.dependencies import get_station_service
-from repository.station import StationRepository
-from models.station import Station
-from core.database import get_session
 from schemas.station import StationCreate, StationRead
 from service.station import StationService
 
