@@ -42,9 +42,11 @@ class StationService:
         try:
             await self._station_repository.create(station)
             await self._session.commit()
+
         except Exception:
             await self._session.rollback()
             raise
+
         return station
 
     async def get_all(self) -> list[Station]:

@@ -31,13 +31,13 @@ class TrainService:
                 detail="이미 존재하는 열차입니다.",
             )
 
-        try:
-            train = Train(
-                train_type=train_in.train_type,
-                train_number=train_in.train_number,
-                capacity=40,
-            )
+        train = Train(
+            train_type=train_in.train_type,
+            train_number=train_in.train_number,
+            capacity=40,
+        )
 
+        try:
             await self._train_repository.create(train)
 
             seats = []
@@ -55,10 +55,10 @@ class TrainService:
                     )
 
             await self._seat_repository.create_many(seats)
-
             await self._session.commit()
 
-            return train
         except Exception:
             await self._session.rollback()
             raise
+
+        return train

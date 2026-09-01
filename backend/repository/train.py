@@ -28,3 +28,6 @@ class TrainRepository:
         result = await self._session.execute(stmt)
 
         return result.scalar_one_or_none()
+
+    async def get_by_id(self, train_id: int) -> Train | None:
+        return await self._session.get(Train, train_id)
