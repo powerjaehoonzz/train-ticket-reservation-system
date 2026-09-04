@@ -2,7 +2,11 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.train_schedule import TrainSchedule
-from schemas.train_schedule import TrainScheduleCreate
+from schemas.train_schedule import (
+    TrainScheduleCreate,
+    TrainScheduleSearch,
+    TrainScheduleSearchRead,
+)
 from repository.station import StationRepository
 from repository.train import TrainRepository
 from repository.train_schedule import TrainScheduleRepository
@@ -94,3 +98,37 @@ class TrainScheduleService:
             raise
 
         return train_schedule
+
+    async def search(
+        self, train_schedule_in: TrainScheduleSearch
+    ) -> list[TrainScheduleSearchRead]:
+        schedules = await self._train_schedule_repository.search(
+            train_schedule_in.departure_station_id,
+            train_schedule_in.arrival_station_id,
+            train_schedule_in.departure_date,
+        )
+
+        result = []
+
+        for (
+            train_schedule,
+            train,
+            departure_station,
+            arrival_station,
+            remaining_seats,
+        ) in schedules:
+            result.append(
+                TrainScheduleSearchRead(
+                    id=train_schedule.id,
+                    train_id=train.id,
+                    train_type=train.train_type,
+                    train_number=train.train_number,
+                    departure_station=departure_station.name,
+                    arrival_station=arrival_station.name,
+                    departure_time=train_schedule.departure_time,
+                    arrival_time=train_schedule.arrival_time,
+                    remaining_seats=remaining_seats,
+                )
+            )
+
+        return result
