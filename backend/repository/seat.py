@@ -13,3 +13,6 @@ class SeatRepository:
         await self._session.flush()
 
         return seats
+
+    async def get_by_id(self, seat_id: int) -> Seat | None:
+        return await self._session.get(Seat, seat_id)

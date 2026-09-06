@@ -1,6 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from repository.reservation import ReservationRepository
+from service.reservation import ReservationService
 from service.train_schedule import TrainScheduleService
 from repository.train_schedule import TrainScheduleRepository
 from repository.seat import SeatRepository
@@ -60,4 +62,21 @@ def get_train_schedule_service(
 ) -> TrainScheduleService:
     return TrainScheduleService(
         session, train_schedule_repository, train_repository, station_repository
+    )
+
+
+def get_reservation_repository(
+    session: AsyncSession = Depends(get_session),
+) -> ReservationRepository:
+    return get_reservation_repository(session)
+
+
+def get_reservation_service(
+    session: AsyncSession = Depends(get_session),
+    reservation_repository=Depends(get_reservation_repository),
+    train_repository=Depends(get_train_repository),
+    seat_repository=Depends(get_seat_repository),
+) -> ReservationService:
+    return ReservationService(
+        session, reservation_repository, train_repository, seat_repository
     )
