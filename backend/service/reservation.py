@@ -82,3 +82,5 @@ class ReservationService:
         except Exception:
             await self._session.rollback()
             raise
+
+        return reservation
