@@ -22,3 +22,6 @@ class UserRepository:
         result = await self._session.execute(stmt)
 
         return result.scalar_one_or_none()
+
+    async def get_by_id(self, user_id: int) -> User | None:
+        return await self._session.get(User, user_id)
