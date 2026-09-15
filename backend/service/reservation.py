@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from repository.seat import SeatRepository
 from repository.train_schedule import TrainScheduleRepository
@@ -79,6 +80,12 @@ class ReservationService:
         try:
             await self._reservation_repository.create(reservation)
             await self._session.commit()
+        except IntegrityError:
+            await self._session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="이미 예약된 좌석입니다.",
+            )
         except Exception:
             await self._session.rollback()
             raise
