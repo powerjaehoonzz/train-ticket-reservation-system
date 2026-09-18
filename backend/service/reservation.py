@@ -1,9 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
+from enums.reservation import ReservationStatus
 from repository.seat import SeatRepository
 from repository.train_schedule import TrainScheduleRepository
 from models.reservation import Reservation
@@ -94,3 +95,41 @@ class ReservationService:
 
     async def get_by_user_id(self, user_id: int) -> list[Reservation]:
         return await self._reservation_repository.get_by_user_id(user_id)
+
+    async def cancel(self, user_id: int, reservation_id: int) -> Reservation:
+        reservation = await self._reservation_repository.get_by_id(reservation_id)
+
+        if reservation is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="존재하지 않는 예약입니다.",
+            )
+
+        if user_id != reservation.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="예약은 본인만 취소할 수 있습니다.",
+            )
+
+        if reservation.status == ReservationStatus.CANCELLED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="이미 취소된 예약입니다.",
+            )
+
+        cancel_deadline = reservation.schedule.departure_time - timedelta(minutes=5)
+
+        if datetime.now(timezone.utc) > cancel_deadline:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="출발 5분전까지만 예약을 취소할 수 있습니다.",
+            )
+
+        try:
+            await self._reservation_repository.cancel(reservation)
+            await self._session.commit()
+        except Exception:
+            await self._session.rollback()
+            raise
+
+        return reservation

@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from enums.reservation import ReservationStatus
@@ -31,7 +32,11 @@ class ReservationRepository:
         return result.scalar_one_or_none()
 
     async def get_by_id(self, reservation_id: int) -> Reservation | None:
-        return await self._session.get(Reservation, reservation_id)
+        return await self._session.get(
+            Reservation,
+            reservation_id,
+            options=[selectinload(Reservation.schedule)],
+        )
 
     async def get_by_user_id(self, user_id: int) -> list[Reservation]:
         stmt = (
@@ -42,3 +47,10 @@ class ReservationRepository:
         result = await self._session.execute(stmt)
 
         return result.scalars().all()
+
+    async def cancel(self, reservation: Reservation) -> Reservation:
+        reservation.status = ReservationStatus.CANCELLED
+
+        await self._session.flush()
+
+        return reservation

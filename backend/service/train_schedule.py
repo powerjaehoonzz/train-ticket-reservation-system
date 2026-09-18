@@ -92,7 +92,6 @@ class TrainScheduleService:
         try:
             await self._train_schedule_repository.create(train_schedule)
             await self._session.commit()
-
         except Exception:
             await self._session.rollback()
             raise

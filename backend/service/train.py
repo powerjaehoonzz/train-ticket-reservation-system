@@ -56,7 +56,6 @@ class TrainService:
 
             await self._seat_repository.create_many(seats)
             await self._session.commit()
-
         except Exception:
             await self._session.rollback()
             raise
