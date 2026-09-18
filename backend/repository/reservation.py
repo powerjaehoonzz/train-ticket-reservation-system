@@ -29,3 +29,16 @@ class ReservationRepository:
         result = await self._session.execute(stmt)
 
         return result.scalar_one_or_none()
+
+    async def get_by_id(self, reservation_id: int) -> Reservation | None:
+        return await self._session.get(Reservation, reservation_id)
+
+    async def get_by_user_id(self, user_id: int) -> list[Reservation]:
+        stmt = (
+            select(Reservation)
+            .where(Reservation.user_id == user_id)
+            .order_by(Reservation.created_at.desc())
+        )
+        result = await self._session.execute(stmt)
+
+        return result.scalars().all()

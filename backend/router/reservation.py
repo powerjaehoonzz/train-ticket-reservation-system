@@ -19,3 +19,11 @@ async def create_reservation(
     reservation_service: ReservationService = Depends(get_reservation_service),
 ) -> ReservationRead:
     return await reservation_service.create(current_user.id, reservation_in)
+
+
+@router.get("", response_model=list[ReservationRead])
+async def get_my_reservations(
+    current_user: User = Depends(get_current_user),
+    reservation_service: ReservationService = Depends(get_reservation_service),
+) -> list[ReservationRead]:
+    return await reservation_service.get_by_user_id(current_user.id)

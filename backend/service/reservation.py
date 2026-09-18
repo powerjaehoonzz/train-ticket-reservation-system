@@ -91,3 +91,6 @@ class ReservationService:
             raise
 
         return reservation
+
+    async def get_by_user_id(self, user_id: int) -> list[Reservation]:
+        return await self._reservation_repository.get_by_user_id(user_id)
